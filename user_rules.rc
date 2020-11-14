@@ -1,0 +1,9 @@
+
+
+#define ICON_ID 101
+
+ICON_ID  ICON  "tcl_inside_icon.ico"
+
+#if STATIC_BUILD
+  #include "tk_base.rc"
+#endif

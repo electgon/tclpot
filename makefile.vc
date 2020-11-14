@@ -1,0 +1,142 @@
+#----------------------------------
+# Copyright (c) 2020 Electgon
+#----------------------------------
+#
+# General usage:
+#   nmake -f Makefile
+#----------------------------------
+
+
+C_WRAPPER  = tclpot
+TCL_SCRIPT = tk_hello
+RULES_FILE = user_rules
+
+
+#------------------- TCL only or with TK-------------
+#  please choose below if it is tcl only application
+#  or tcl with tk
+
+PROJECT = tcl
+# PROJECT = tk
+#----------------------------------------------------
+
+
+#------------- Used Libraries and Packages---------------
+TCL8_NAME    = tcl8
+TCL_VER_NAME = tcl8.7
+TK_VER_NAME  = tk8.7
+CMDLINE_PKG_NAME = cmdline
+STRUCT_PKG_NAME = struct
+
+# --- If you use other package or module, you can pass its name to the
+# --- C code like the following flags, or add it manually in the 
+# --- C source code file.
+PKGFLAGS = -D APP_4_WIN \
+           -D SCRIPT_TO_RUN=$(TCL_SCRIPT) \
+           -D MK_TCL8_NAME=$(TCL8_NAME) \
+           -D MK_STR_TCL_VERSION=$(TCL_VER_NAME) \
+           -D MK_STR_TK_VERSION=$(TK_VER_NAME) \
+           -D MK_CMDLINE_PKG=$(CMDLINE_PKG_NAME) \
+           -D MK_STRUCT_PKG=$(STRUCT_PKG_NAME) \
+#----------------------------------------------------
+
+BASE_BUILD_PATH = D:\Arbeit\Tools\TCL\SourceCode\usr_build
+#------------ Path to source of used Libraries and Packages---------------
+TCL8_LIB_PATH   = "$(BASE_BUILD_PATH)\lib\"$(TCL8_NAME)
+TCL_LIB_PATH    = "$(BASE_BUILD_PATH)\lib\"$(TCL_VER_NAME)
+TK_LIB_PATH     = "$(BASE_BUILD_PATH)\lib\"$(TK_VER_NAME)
+TCL_PKG_CMDLINE = "$(BASE_BUILD_PATH)\lib\tcllib-1.20\modules\"$(CMDLINE_PKG_NAME)
+TCL_PKG_STRUCT  = "$(BASE_BUILD_PATH)\lib\tcllib-1.20\modules\"$(STRUCT_PKG_NAME)
+#----------------------------------------------------
+
+
+#------------ If you don't use Rules file, set USE_RC_FILE = 0 ---------------
+USE_RC_FILE = 1
+RULES_INCLUDE = -I"D:\Arbeit\Tools\TCL\SourceCode\tk8.7a3\win\rc"
+#----------------------------------------------------
+
+
+#------------ Path to compiled TCL sources ---------------
+INCLUDE_DIR = -I"$(BASE_BUILD_PATH)\include"
+TCL_LIB_DIR = -LIBPATH:"$(BASE_BUILD_PATH)\lib"
+#----------------------------------------------------
+SYSTEM_LIBS = user32.lib netapi32.lib kernel32.lib gdi32.lib
+TCL_LIBS = tcl87s.lib tclstub87.lib 
+TK_LIBS = tk87s.lib tkstub87.lib
+#----------------------------------------------------
+
+!if "$(PROJECT)" == "tcl"
+CFLAGS = -DSTATIC_BUILD  -DBASE_NO_TK_ICON -DCLI_ONLY_APP $(PKGFLAGS)
+!elseif "$(PROJECT)" == "tk"
+CFLAGS = -DSTATIC_BUILD  -DBASE_NO_TK_ICON -DENABLE_TK $(PKGFLAGS)
+!endif
+
+
+
+COMPILE_FILES = /Tc $(C_WRAPPER).c
+!if $(USE_RC_FILE) 
+OBJECT_FILES = $(C_WRAPPER).obj $(RULES_FILE).res
+!else
+OBJECT_FILES = $(C_WRAPPER).obj
+!endif
+
+
+ZIP_TOOL = "C:\Program Files\7-zip\7z.exe"
+ZIPPED_TCL_FILE  = zipped_tcl_lib
+UNZIPPED_TCL_LIB = TCL_RUNTIME_LIB
+EXE = .exe
+
+# Compilers
+RULES_COMPILER = rc
+COMPILER = cl
+
+# other general utilities
+RM    = del /q
+RMDIR = rd /q /s
+MKDIR = mkdir
+ECHO  = echo
+STRIP = strip
+COPY  = copy
+CPDIR = xcopy /q /i /e
+CD    = cd
+CAT   = type
+
+
+
+#---------------------------------------------------------------------
+# Building
+#---------------------------------------------------------------------
+
+all: wrapper_build
+
+wrapper_build:
+    $(RM) $(ZIPPED_TCL_FILE).zip
+    @if exist $(UNZIPPED_TCL_LIB) $(RMDIR) $(UNZIPPED_TCL_LIB)
+    $(MKDIR) $(UNZIPPED_TCL_LIB)
+	$(ECHO) Building executable for user TCL script ....
+!if $(USE_RC_FILE)
+    $(RULES_COMPILER) $(CFLAGS) $(RULES_INCLUDE) $(RULES_FILE).rc
+!endif
+    $(COMPILER) -c $(INCLUDE_DIR) $(COMPILE_FILES) $(CFLAGS)
+    $(COMPILER) $(OBJECT_FILES) -o $(TCL_SCRIPT)$(EXE) $(SYSTEM_LIBS) -link $(TCL_LIB_DIR) $(TCL_LIBS) $(TK_LIBS)
+    $(COPY)  $(TCL_SCRIPT).tcl $(UNZIPPED_TCL_LIB)
+    $(CPDIR) $(TCL8_LIB_PATH) $(UNZIPPED_TCL_LIB)\$(TCL8_NAME)
+    $(CPDIR) $(TCL_LIB_PATH) $(UNZIPPED_TCL_LIB)\$(TCL_VER_NAME)
+    $(CPDIR) $(TK_LIB_PATH) $(UNZIPPED_TCL_LIB)\$(TK_VER_NAME)
+	$(CPDIR) $(TCL_PKG_CMDLINE) $(UNZIPPED_TCL_LIB)\$(CMDLINE_PKG_NAME)
+	$(CPDIR) $(TCL_PKG_STRUCT) $(UNZIPPED_TCL_LIB)\$(STRUCT_PKG_NAME)
+    @cd $(UNZIPPED_TCL_LIB)
+    $(ZIP_TOOL)  a -r -tzip ..\$(ZIPPED_TCL_FILE).zip *
+    @cd ..
+    $(CAT) $(ZIPPED_TCL_FILE).zip >> $(TCL_SCRIPT)$(EXE)
+
+##---------------------------------------------------------------------
+## Clean up
+##---------------------------------------------------------------------
+clean:
+	@if exist *.obj $(RM) *.obj
+	@if exist *.res $(RM) *.res
+	@if exist $(TCL_SCRIPT)$(EXE) $(RM) $(TCL_SCRIPT)$(EXE)
+	@if exist $(ZIPPED_TCL_FILE).zip $(RM) $(ZIPPED_TCL_FILE).zip
+	@if exist $(UNZIPPED_TCL_LIB) $(RMDIR) $(UNZIPPED_TCL_LIB)
+
