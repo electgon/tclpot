@@ -51,6 +51,7 @@ TCL_PKG_STRUCT  = "$(BASE_BUILD_PATH)/lib/tcllib-1.20/modules/"$(STRUCT_PKG_NAME
 
 
 #------------ If you don't use Rules file, set USE_RC_FILE = 0 ---------------
+#----------------- Not applicable in case of Linux build ---------------------
 USE_RC_FILE = 0
 RULES_INCLUDE = -I"/path/to/rc"
 #----------------------------------------------------
@@ -80,11 +81,8 @@ endif
 endif
 
 COMPILE_FILES = $(C_WRAPPER).c
-ifeq ($(USE_RC_FILE), 1)
-OBJECT_FILES = $(C_WRAPPER).o $(RULES_FILE).res
-else
 OBJECT_FILES = $(C_WRAPPER).o
-endif
+
 
 
 ZIP_TOOL = zip
@@ -120,7 +118,6 @@ wrapper_build:
 	$(RMDIR) $(UNZIPPED_TCL_LIB)
 	$(MKDIR) $(UNZIPPED_TCL_LIB)
 	$(ECHO) Building executable for user TCL script ....
-	@if ($(USE_RC_FILE) == 1); then $(RULES_COMPILER) $(CFLAGS) $(RULES_INCLUDE) $(RULES_FILE).rc; fi
 	$(COMPILER) $(INCLUDE_DIR) $(CFLAGS) -c $(COMPILE_FILES) 
 	$(COMPILER) $(OBJECT_FILES) -o $(TCL_SCRIPT)$(EXE) $(TCL_LIBS) $(TK_LIBS) $(SYSTEM_LIBS)
 	$(STRIP) $(TCL_SCRIPT)$(EXE)
