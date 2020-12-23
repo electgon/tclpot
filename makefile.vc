@@ -40,7 +40,7 @@ PKGFLAGS = -D APP_4_WIN \
            -D MK_STRUCT_PKG=$(STRUCT_PKG_NAME) \
 #----------------------------------------------------
 
-BASE_BUILD_PATH = D:\Arbeit\Tools\TCL\SourceCode\usr_build
+BASE_BUILD_PATH = D:\path\to\TCL\SourceCode\usr_build
 #------------ Path to source of used Libraries and Packages---------------
 TCL8_LIB_PATH   = "$(BASE_BUILD_PATH)\lib\"$(TCL8_NAME)
 TCL_LIB_PATH    = "$(BASE_BUILD_PATH)\lib\"$(TCL_VER_NAME)
@@ -52,7 +52,7 @@ TCL_PKG_STRUCT  = "$(BASE_BUILD_PATH)\lib\tcllib-1.20\modules\"$(STRUCT_PKG_NAME
 
 #------------ If you don't use Rules file, set USE_RC_FILE = 0 ---------------
 USE_RC_FILE = 1
-RULES_INCLUDE = -I"D:\Arbeit\Tools\TCL\SourceCode\tk8.7a3\win\rc"
+RULES_INCLUDE = -I"D:\path\to\TCL\SourceCode\tk8.7a3\win\rc"
 #----------------------------------------------------
 
 

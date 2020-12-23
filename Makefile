@@ -40,7 +40,7 @@ PKGFLAGS = \
            -D MK_STRUCT_PKG=$(STRUCT_PKG_NAME) \
 #----------------------------------------------------
 
-BASE_BUILD_PATH = /home/pi/TCL_Build
+BASE_BUILD_PATH = /home/path/to/TCL_Build
 #------------ Path to source of used Libraries and Packages---------------
 #TCL8_LIB_PATH  = "$(BASE_BUILD_PATH)/lib/"$(TCL8_NAME)
 TCL_LIB_PATH    = "$(BASE_BUILD_PATH)/lib/tcl_library"

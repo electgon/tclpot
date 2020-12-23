@@ -96,6 +96,10 @@ static char wait_x[] =
     myinterp = Tcl_CreateInterp();
 
 #ifdef CLI_ONLY_APP
+  // IMPORTANT NOTE: if you need to pass arguments to your TCL script, then
+  // make sure that 'argc and argv' parameters are defined as below
+  // otherwise, you can bypass the following argc & argv0 declarations:
+#endif
     app_args = Tcl_Merge(argc-1, argv+1);
     // the result string is dynamically allocated using Tcl_Alloc; 
     // the caller must eventually release the space using Tcl_Free.
@@ -105,7 +109,7 @@ static char wait_x[] =
     Tcl_SetVar(myinterp, "argc", scr_argc, TCL_GLOBAL_ONLY);
     Tcl_SetVar(myinterp, "argv0", argv[0], TCL_GLOBAL_ONLY);
     Tcl_SetVar(myinterp, "tcl_interactive", "0", TCL_GLOBAL_ONLY);
-#endif
+
 
     if (TclZipfs_Init(myinterp) != TCL_OK) {
         printf("Error in initializing Virtual File System\n");
